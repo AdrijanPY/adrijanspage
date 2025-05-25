@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adrijan - Spigot Plugin Developer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 100px 0 80px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .name {
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #a0a0a0;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: slideUp 1s ease 0.5s forwards;
+        }
+
+        .location {
+            font-size: 1.1rem;
+            color: #667eea;
+            opacity: 0;
+            animation: slideUp 1s ease 0.7s forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            margin-bottom: 100px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.3s; }
+        .section:nth-child(3) { animation-delay: 0.6s; }
+        .section:nth-child(4) { animation-delay: 0.9s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .about-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .about-content:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .plugins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .plugin-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plugin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .plugin-card:hover::before {
+            left: 100%;
+        }
+
+        .plugin-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 40px 80px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .plugin-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .plugin-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .plugin-description {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .plugin-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .plugin-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(45deg, #764ba2, #667eea);
+        }
+
+        .coming-soon {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .coming-soon .plugin-icon {
+            background: linear-gradient(45deg, #ffc107, #ff8f00);
+        }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #ffc107, #ff8f00);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: translateY(-5px);
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #667eea;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .name { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+            .plugins-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 15px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    
+    <div class="container">
+        <header class="header">
+            <div class="avatar">A</div>
+            <h1 class="name">Adrijan</h1>
+            <p class="subtitle">Spigot Plugin Developer</p>
+            <p class="location">📍 South America • Age 20</p>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <p>Welcome to my digital workshop! I'm a passionate developer who loves creating small hobby plugins for the Minecraft community. My goal is simple: build tools that make gaming more enjoyable and help server owners enhance their players' experience. Every plugin I create comes from a genuine desire to contribute something meaningful to the community.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">My Plugins</h2>
+            <div class="plugins-grid">
+                <div class="plugin-card">
+                    <div class="plugin-icon">🤝</div>
+                    <h3 class="plugin-title">SimplePlayerTrading</h3>
+                    <p class="plugin-description">A comprehensive trading system that allows players to safely exchange items with each other. Features secure trade windows, confirmation dialogs, and anti-scam protection.</p>
+                    <a href="https://www.spigotmc.org/resources/simpleplayertrading-dev-branch.124176/" class="plugin-link" target="_blank">View on SpigotMC</a>
+                </div>
+
+                <div class="plugin-card">
+                    <div class="plugin-icon">🎯</div>
+                    <h3 class="plugin-title">SimpleHitMarkers</h3>
+                    <p class="plugin-description">Enhanced combat feedback with customizable hit indicators. Provides visual and audio cues to improve PvP experience and make combat more satisfying.</p>
+                    <a href="https://www.spigotmc.org/resources/simplehitmarkers-indicators.124004/" class="plugin-link" target="_blank">View on SpigotMC</a>
+                </div>
+
+                <div class="plugin-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="plugin-icon">📈</div>
+                    <h3 class="plugin-title">A Stock Market Plugin</h3>
+                    <p class="plugin-description">An advanced economy plugin that simulates a realistic stock market system. Players can buy, sell, and trade virtual stocks with dynamic pricing and market fluctuations.</p>
+                    <a href="https://www.spigotmc.org/resources/astockmarketplugin-soon-fixed.120640/" class="plugin-link" target="_blank">View on SpigotMC</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">More Coming Soon</h2>
+            <div class="about-content">
+                <p>I'm constantly working on new ideas and improvements. Stay tuned for more innovative plugins that will enhance your Minecraft server experience. Each project is crafted with care and attention to detail, ensuring quality and reliability for server administrators and players alike.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="social-links">
+                <a href="#" class="social-link">🌐</a>
+                <a href="#" class="social-link">💬</a>
+                <a href="#" class="social-link">📧</a>
+            </div>
+            <p>&copy; 2024 Adrijan. Crafted with passion for the Minecraft community.</p>
+        </div>
+    </footer>
+
+    <div class="scroll-indicator">
+        <div style="font-size: 1.5rem;">↓</div>
+    </div>
+
+    <script>
+        // Particle System
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: 0, y: 0 };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticle(x, y) {
+            return {
+                x: x || Math.random() * canvas.width,
+                y: y || Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                size: Math.random() * 3 + 1,
+                opacity: Math.random() * 0.5 + 0.2,
+                color: `hsl(${230 + Math.random() * 60}, 70%, 60%)`
+            };
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function updateParticles() {
+            particles.forEach(particle => {
+                // Mouse interaction
+                const dx = mouse.x - particle.x;
+                const dy = mouse.y - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const force = (150 - distance) / 150;
+                    particle.vx += dx * force * 0.01;
+                    particle.vy += dy * force * 0.01;
+                }
+
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                // Friction
+                particle.vx *= 0.99;
+                particle.vy *= 0.99;
+
+                // Boundaries
+                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+                // Keep particles in bounds
+                particle.x = Math.max(0, Math.min(canvas.width, particle.x));
+                particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                ctx.save();
+                ctx.globalAlpha = particle.opacity;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw connections
+            particles.forEach((particle, i) => {
+                particles.slice(i + 1).forEach(otherParticle => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.save();
+                        ctx.globalAlpha = (100 - distance) / 100 * 0.2;
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                });
+            });
+        }
+
+        function animate() {
+            updateParticles();
+            drawParticles();
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        // Initialize
+        resizeCanvas();
+        initParticles();
+        animate();
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 1s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Hide scroll indicator after scrolling
+        window.addEventListener('scroll', () => {
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (window.scrollY > 100) {
+                scrollIndicator.style.opacity = '0';
+            } else {
+                scrollIndicator.style.opacity = '1';
+            }
+        });
+
+        // Plugin card hover effects
+        document.querySelectorAll('.plugin-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Add extra particles around the card
+                const rect = card.getBoundingClientRect();
+                for (let i = 0; i < 10; i++) {
+                    particles.push(createParticle(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    ));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
